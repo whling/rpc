@@ -13,7 +13,7 @@
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
-			<scope>test</scope>
+			<scope>compile</scope>
 		</dependency>
 		<!-- Spring -->
 		<dependency>
@@ -24,7 +24,7 @@
 				<groupId>org.springframework</groupId>
 				<artifactId>spring-test</artifactId>
 				<version>${spring.version}</version>
-				<scope>test</scope>
+				<scope>compile</scope>
 			</dependency>
 		<!-- 服务接口 -->
 		<dependency>
