@@ -15,11 +15,11 @@
     <bean id="serviceRegistry" class="com.whl.rpc.registry.ServiceRegistry">
         <constructor-arg name="registryAddress" value="${registry.address}"/>
     </bean>
-	
-	<!-- 
-	配置服务提供者的地址 
-	这个类是此业务的核心，里面实现了ApplicationContextAware, InitializingBean接口，里面处理丰富的业务逻辑
-	-->
+
+    <!--
+    配置服务提供者的地址
+    这个类是此业务的核心，里面实现了ApplicationContextAware, InitializingBean接口，里面处理丰富的业务逻辑
+    -->
     <bean id="rpcServer" class="com.whl.rpc.server.RpcServer">
         <constructor-arg name="serverAddress" value="${server.address}"/>
         <constructor-arg name="serviceRegistry" ref="serviceRegistry"/>

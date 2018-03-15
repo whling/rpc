@@ -59,7 +59,7 @@ public class ServiceRegistry {
 					bytes, Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL_SEQUENTIAL);
 			LOGGER.info("create zookeeper node ({} => {})", path, data);
 		} catch (Exception e) {
-			LOGGER.error("", e);
+			LOGGER.error("注册服务信息失败", e);
 		}
 
 	}
