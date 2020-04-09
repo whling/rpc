@@ -7,8 +7,6 @@ package com.whl.rpc.common;
  *
  */
 
-import java.util.List;
-
 public class RpcRequest {
 	/**
 	 * 封装需要反射的类名、方法名、方法参数、参数类型
