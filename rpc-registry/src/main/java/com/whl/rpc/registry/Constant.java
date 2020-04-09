@@ -1,7 +1,7 @@
 package com.whl.rpc.registry;
 
 public class Constant {
-	public static final int ZK_SESSION_TIMEOUT = 5000;
+	public static final int ZK_SESSION_TIMEOUT = 30000;
 	/**
 	 * 服务注册的基地址
 	 */

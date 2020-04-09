@@ -66,38 +66,44 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
      */
     @Override
     public void afterPropertiesSet() throws Exception {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                EventLoopGroup bossGroup = new NioEventLoopGroup();
+                EventLoopGroup workerGroup = new NioEventLoopGroup();
+                try {
+                    ServerBootstrap bootstrap = new ServerBootstrap();
+                    bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
+                            .childHandler(new ChannelInitializer<SocketChannel>() {
+                                @Override
+                                public void initChannel(SocketChannel channel) throws Exception {
+                                    channel.pipeline().addLast(new RpcDecoder(RpcRequest.class))// 注册解码IN
+                                            .addLast(new RpcEncoder(RpcResponse.class))// 注册编码OUT
+                                            .addLast(new RpcHandler(handlerMap));// 注册RpcHandler IN
+                                }
+                            }).option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true);
 
-        EventLoopGroup bossGroup = new NioEventLoopGroup();
-        EventLoopGroup workerGroup = new NioEventLoopGroup();
-        try {
-            ServerBootstrap bootstrap = new ServerBootstrap();
-            bootstrap.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class)
-                    .childHandler(new ChannelInitializer<SocketChannel>() {
-                        @Override
-                        public void initChannel(SocketChannel channel) throws Exception {
-                            channel.pipeline().addLast(new RpcDecoder(RpcRequest.class))// 注册解码IN
-                                    .addLast(new RpcEncoder(RpcResponse.class))// 注册编码OUT
-                                    .addLast(new RpcHandler(handlerMap));// 注册RpcHandler IN
-                        }
-                    }).option(ChannelOption.SO_BACKLOG, 128).childOption(ChannelOption.SO_KEEPALIVE, true);
+                    String[] array = serverAddress.split(":");
+                    String host = array[0];
+                    int port = Integer.parseInt(array[1]);
 
-            String[] array = serverAddress.split(":");
-            String host = array[0];
-            int port = Integer.parseInt(array[1]);
+                    ChannelFuture future = bootstrap.bind(host, port).sync();
+                    LOGGER.debug("server started on port {}", port);
+                    // 注册本系统的所有服务
+                    Set<String> keySet = handlerMap.keySet();
+                    for (String serviceName : keySet) {
+                        serviceRegistry.registry(serviceName, serverAddress);
+                    }
 
-            ChannelFuture future = bootstrap.bind(host, port).sync();
-            LOGGER.debug("server started on port {}", port);
-            // 注册本系统的所有服务
-            Set<String> keySet = handlerMap.keySet();
-            for (String serviceName : keySet) {
-                serviceRegistry.registry(serviceName, serverAddress);
+                    future.channel().closeFuture().sync();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    workerGroup.shutdownGracefully();
+                    bossGroup.shutdownGracefully();
+                }
             }
-
-            future.channel().closeFuture().sync();
-        } finally {
-            workerGroup.shutdownGracefully();
-            bossGroup.shutdownGracefully();
-        }
+        }, "RpcServer-Thread").start();
     }
 
 }

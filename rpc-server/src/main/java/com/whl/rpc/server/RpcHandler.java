@@ -1,18 +1,15 @@
 package com.whl.rpc.server;
 
-import java.lang.reflect.Method;
-import java.util.Map;
-
-import org.apache.commons.collections4.functors.ForClosure;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.whl.rpc.common.RpcRequest;
 import com.whl.rpc.common.RpcResponse;
-
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Method;
+import java.util.Map;
 
 /**
  * 
@@ -42,6 +39,7 @@ public class RpcHandler extends SimpleChannelInboundHandler<RpcRequest> {
 			LOGGER.error("调用失败：{}", t);
 			response.setError(t);
 		}
+		// 写入 RPC 响应对象并自动关闭连接
 		ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 	}
 
